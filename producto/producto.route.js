@@ -7,12 +7,9 @@ const { authenticateToken } = require('../middleware/auth');
 async function GetProductos(req, res) {
     try {
         const resultadosBusqueda = await readProductoConFiltros(req.query);
-
-        res.status(200).json({
-            ...resultadosBusqueda
-        });
+        res.status(200).json(resultadosBusqueda);
     } catch (e) {
-        res.status(500).json({ msg: "" });
+        respondWithError(res, e);
     }
 }
 
