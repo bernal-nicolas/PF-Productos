@@ -15,6 +15,13 @@ function authenticateToken(req, res, next) {
     });
 }
 
+function getTokenID(req) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  return jwt.verify(token, process.env.JWT_SECRET).id;
+}
+
 module.exports = {
-    authenticateToken
+    authenticateToken,
+    getTokenID
 };

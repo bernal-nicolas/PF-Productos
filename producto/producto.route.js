@@ -2,14 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { readProductoConFiltros, createProducto, updateProducto, deleteProducto } = require("./producto.controller");
 const { respondWithError } = require('../utils/functions');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, getTokenID } = require('../middleware/auth');
 
 async function GetProductos(req, res) {
     try {
+        req.query.userID = getTokenID(req)
         const resultadosBusqueda = await readProductoConFiltros(req.query);
         res.status(200).json(resultadosBusqueda);
     } catch (e) {
-        respondWithError(res, e);
+        if (typeof e == "object"){
+          res.status(500).json({msg: "DB ERROR"})
+        } else {
+          respondWithError(res, e);
+        }
     }
 }
 

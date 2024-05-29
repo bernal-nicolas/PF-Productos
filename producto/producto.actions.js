@@ -2,8 +2,46 @@ const Producto = require("./producto.model")
 
 async function getProductoMongo(filtros) {
     filtros.isActive = true;
-    const productosFiltrados = await Producto.find(filtros);
-    
+    const productosFiltrados = await Producto.aggregate([
+      {
+        $addFields: {
+            ganadoObjectId: { $toObjectId: "$ganadoID" }
+        }
+      },
+      {
+        $lookup: {
+            from: "ganados", // Nombre de la colección Ganado en plural
+            localField: "ganadoObjectId",
+            foreignField: "_id",
+            as: "ganadoInfo"
+        }
+      },
+      {
+        $unwind: "$ganadoInfo"
+      },
+      // Filtrar por userID del usuario proporcionado
+      {
+          $match: {
+              "ganadoInfo.userID": filtros.userID
+          }
+      },
+      // Select!
+      {
+        $project: {
+          _id: 1,
+          nombre: 1,
+          cantidad: 1,
+          fechaReg: 1,
+          fechaExp: 1,
+          ganadoID: 1,
+          isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          ganadoInfo: 1
+        }
+      }
+    ])
+
     return productosFiltrados;
 }
 
